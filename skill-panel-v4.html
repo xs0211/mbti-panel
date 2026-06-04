@@ -526,22 +526,84 @@
             'ISTP': '鉴赏家', 'ISFP': '探险家', 'ESTP': '企业家', 'ESFP': '表演者'
         };
 
-        async function loadPanel() {
+        const MBTI_PROFILES = {
+            'INTJ': { radar: [92,85,88,55,95,78], strengths: ['战略规划','系统思维','独立分析','长远布局','逻辑推演'], weaknesses: ['社交耐心','情感表达','团队妥协'], collab: {type:'独立策略型',description:'偏好独立思考后给出完整方案，重视效率和逻辑严密性'}, teamRole: {name:'首席策略师',description:'负责制定长期战略方向，将复杂问题分解为可执行的步骤，是团队的智囊核心'}, suitableWork: ['战略咨询','系统架构','数据分析','投资研究','科学研究'], bestScenarios: ['需要长期规划和系统性思考的项目','复杂问题需要拆解为可执行方案时','独立深度研究和分析工作','需要预判趋势和风险的决策场景'], growthTips: ['适当放慢节奏，倾听他人的情感需求','练习用更温和的方式表达不同意见','尝试在非正式场合建立人际连接','接受"足够好"有时比"完美"更实际'] },
+            'INTP': { radar: [95,90,60,50,98,65], strengths: ['逻辑分析','理论构建','创新思维','知识整合','问题诊断'], weaknesses: ['执行力','人际敏感度','时间管理'], collab: {type:'理论探索型',description:'善于提出新视角和理论框架，需要自由空间进行深度思考'}, teamRole: {name:'智库分析师',description:'负责提供理论支撑和创新方案，善于发现别人忽略的问题本质'}, suitableWork: ['算法研究','理论物理','哲学分析','技术架构','学术研究'], bestScenarios: ['需要从零构建理论框架的全新领域','bug追踪和根因分析','技术选型和架构评估','需要跳出惯性思维的创新突破'], growthTips: ['设定明确的截止日期并严格执行','将大想法拆分成小步骤逐步落地','主动分享半成品想法获取反馈','关注他人感受，不是所有问题都需要"纠正"'] },
+            'ENTJ': { radar: [88,72,95,70,82,90], strengths: ['领导决策','目标驱动','资源整合','执行推进','全局把控'], weaknesses: ['耐心倾听','情感细腻','接受失败'], collab: {type:'指挥决策型',description:'天生的领导者，善于制定目标并推动团队高效执行'}, teamRole: {name:'项目总指挥',description:'负责设定方向、分配资源、推动执行，确保团队按时达成目标'}, suitableWork: ['项目管理','企业管理','创业','管理咨询','运营总监'], bestScenarios: ['需要快速决策和强执行力的紧急项目','团队缺乏方向需要明确目标时','资源有限需要高效分配的情况','跨部门协调和推动变革'], growthTips: ['学会放权，信任团队成员的能力','在追求效率的同时关注团队士气','接受某些事情需要时间沉淀','倾听反对意见中的合理成分'] },
+            'ENTP': { radar: [82,95,62,72,90,68], strengths: ['创新思维','快速学习','辩论说服','灵活应变','跨界联想'], weaknesses: ['持续专注','细节执行','承诺兑现'], collab: {type:'头脑风暴型',description:'擅长激发创意和打破常规，在讨论中碰撞出最佳方案'}, teamRole: {name:'创意催化师',description:'负责打破思维定式，提出非常规方案，让团队保持创新活力'}, suitableWork: ['产品创新','创意策划','风险投资','辩护律师','市场营销'], bestScenarios: ['需要打破僵局的头脑风暴会议','快速原型验证和迭代的早期阶段','需要说服客户或投资人的关键场合','面对全新挑战需要灵活应变时'], growthTips: ['选择1-2个项目深耕，抵抗新鲜感诱惑','建立完成项目的奖励机制','学会区分"有趣"和"重要"','对承诺建立跟踪系统确保兑现'] },
+            'INFJ': { radar: [78,88,72,80,85,62], strengths: ['洞察人心','愿景规划','深度共情','文字表达','价值引导'], weaknesses: ['自我消耗','冲突回避','完美主义'], collab: {type:'愿景引导型',description:'善于理解每个人的动机和需求，用共同愿景凝聚团队'}, teamRole: {name:'团队灵魂师',description:'负责维护团队价值观和凝聚力，是成员困惑时的倾听者和引导者'}, suitableWork: ['心理咨询','内容创作','教育培训','品牌策略','公益项目'], bestScenarios: ['团队需要凝聚共识和重建信任时','需要深度理解用户心理的产品设计','文化建设和价值观传播','一对一辅导和成长指导'], growthTips: ['学会设立情感边界，保护自己的能量','接受冲突是健康关系的一部分','降低对自己的完美要求','定期独处充电，不必为此愧疚'] },
+            'INFP': { radar: [70,92,55,75,82,52], strengths: ['创意表达','深度共情','价值坚守','想象力','真诚沟通'], weaknesses: ['决断力','现实执行','情绪波动'], collab: {type:'理想共创型',description:'追求有意义的工作，能为团队注入人文关怀和创意灵感'}, teamRole: {name:'人文守护者',description:'负责确保团队决策符合价值观，为产品注入情感温度'}, suitableWork: ['文学创作','UX设计','心理疗愈','艺术创作','非营利组织'], bestScenarios: ['需要情感共鸣的内容创作','用户体验和情感化设计','团队文化和氛围营造','需要坚守原则不妥协的关键时刻'], growthTips: ['将理想分解为可执行的具体步骤','练习在不完美中行动','建立日常routine对抗情绪波动','学会说"不"而不觉得愧疚'] },
+            'ENFJ': { radar: [75,78,82,95,80,70], strengths: ['团队激励','人才培养','沟通协调','氛围营造','冲突调解'], weaknesses: ['过度付出','忽略自我','讨好倾向'], collab: {type:'教练激励型',description:'天生的团队教练，善于发现每个人的潜力并帮助其成长'}, teamRole: {name:'首席激励官',description:'负责团队士气和成员成长，让每个人都能发挥最佳状态'}, suitableWork: ['团队管理','人力资源','教育培训','公共关系','社区运营'], bestScenarios: ['新团队组建需要快速形成凝聚力','成员状态低迷需要激励和支持时','跨团队沟通协调复杂利益关系','培养新人和带教辅导'], growthTips: ['学会把"帮助"的时间也分配给自己','接受不是每个人都需要你的帮助','设定清晰的个人边界','允许自己有状态不好的时候'] },
+            'ENFP': { radar: [72,93,58,88,85,55], strengths: ['激发热情','创意无限','人际连接','适应变化','故事讲述'], weaknesses: ['持久专注','细节管理','情绪稳定'], collab: {type:'热情感染型',description:'用热情和创意感染周围的人，善于建立跨界人脉网络'}, teamRole: {name:'氛围发动机',description:'负责激发团队热情和创意，让工作氛围保持轻松有趣'}, suitableWork: ['创意营销','社群运营','活动策划','品牌传播','自媒体'], bestScenarios: ['需要快速建立人脉和信任的社交场合','团队氛围低沉需要注入活力时','需要创意和灵感的brainstorm','面向公众的演讲和传播工作'], growthTips: ['为重要项目设立"不分心日"','建立优先级系统，学会拒绝低价值邀请','发展一个深度专长而非泛泛涉猎','情绪低落时暂缓重大决定'] },
+            'ISTJ': { radar: [80,45,95,62,75,88], strengths: ['严谨可靠','流程优化','数据驱动','质量把控','风险防范'], weaknesses: ['灵活变通','创新突破','情感表达'], collab: {type:'稳健执行型',description:'是团队最可靠的执行者，确保每个环节都按标准完成'}, teamRole: {name:'质量守门员',description:'负责建立标准流程和质量把控，确保产出稳定可靠'}, suitableWork: ['审计合规','项目执行','数据管理','流程优化','风控管理'], bestScenarios: ['需要建立标准化流程的初创期','质量问题频发需要系统性整改','需要严格按时间表推进的项目','涉及合规和风控的关键决策'], growthTips: ['尝试在小项目中打破常规做法','接受"差不多"有时比"完美流程"更适合','主动征询他人的感受和想法','给新方法一个公平的试验机会'] },
+            'ISFJ': { radar: [65,50,85,88,70,75], strengths: ['细心周到','默默奉献','记忆细节','稳定支撑','实际帮助'], weaknesses: ['拒绝请求','接受变化','表达需求'], collab: {type:'温暖支持型',description:'默默为团队提供可靠支持，关注每个成员的实际需求'}, teamRole: {name:'后勤保障师',description:'负责团队日常运转的细节和成员的实际需求，是最温暖的后盾'}, suitableWork: ['行政管理','客户服务','护理照护','教学辅导','档案管理'], bestScenarios: ['团队需要稳定和持续支持的日常运营','新成员入职需要细心引导时','复杂事务需要细致跟进和记录','成员遇到困难需要实际帮助时'], growthTips: ['练习说"我需要帮助"和"我也很累"','记住你的需求同样重要','逐步适应变化，给自己缓冲时间','学会接受感谢而非习惯性谦虚'] },
+            'ESTJ': { radar: [82,48,98,68,72,92], strengths: ['组织管理','高效执行','标准建立','结果导向','责任担当'], weaknesses: ['灵活变通','情感考量','创新开放'], collab: {type:'规则管理型',description:'善于建立秩序和推动执行，确保团队高效运转'}, teamRole: {name:'运营总管',description:'负责将目标转化为行动计划并严格推进，是团队的执行保障'}, suitableWork: ['运营管理','项目交付','制造管理','财务管理','行政总监'], bestScenarios: ['混乱局面需要快速建立秩序','有明确目标需要高效推进执行','需要建立绩效考核和管理制度','大型项目需要严格的时间和预算管控'], growthTips: ['在效率和人情之间找到平衡','给创新想法一个试错空间','倾听异议时先理解再判断','接受有些问题没有标准答案'] },
+            'ESFJ': { radar: [60,55,80,95,68,72], strengths: ['人际和谐','团队关怀','组织活动','实际服务','维护传统'], weaknesses: ['面对批评','独立决策','打破常规'], collab: {type:'关怀协调型',description:'天生的团队黏合剂，善于创造和谐氛围和组织集体活动'}, teamRole: {name:'文化大使',description:'负责维护团队和谐氛围，组织团建活动，确保每个人都被关注到'}, suitableWork: ['人力资源','客户关系','活动组织','社区管理','公关传播'], bestScenarios: ['新团队需要破冰和建立信任','团队出现人际矛盾需要调解','需要组织大型活动或庆典','维护重要客户关系和满意度'], growthTips: ['学会接受批评中的建设性成分','练习在无人认可时也相信自己','不必为所有人的情绪负责','尝试一个完全自主决定的小项目'] },
+            'ISTP': { radar: [85,68,78,45,80,90], strengths: ['动手能力','冷静分析','灵活应对','工具精通','独立解决'], weaknesses: ['长期规划','情感交流','团队融入'], collab: {type:'独立实干型',description:'偏好独立解决技术问题，在紧急情况下冷静可靠'}, teamRole: {name:'技术特种兵',description:'负责攻克技术难题和紧急问题，用最少的资源找到最有效的解决方案'}, suitableWork: ['工程技术','故障排除','手工制作','紧急救援','独立开发'], bestScenarios: ['紧急技术故障需要快速定位和修复','需要动手实验验证方案的原型阶段','独立攻克一个技术难题','资源有限需要巧妙解决问题时'], growthTips: ['定期与团队分享你的发现和进展','尝试做一些需要长期坚持的项目','练习主动表达自己的想法和需求','关注人的问题而非只关注技术问题'] },
+            'ISFP': { radar: [62,88,60,72,75,55], strengths: ['审美敏感','当下专注','温和真诚','实践创作','自然随和'], weaknesses: ['长期坚持','冲突应对','结构规划'], collab: {type:'艺术协作型',description:'以独特的审美视角和温和态度为团队增添创意色彩'}, teamRole: {name:'美学顾问',description:'负责产品的视觉和情感体验，用细腻的审美让作品更有温度'}, suitableWork: ['视觉设计','摄影摄像','手作工艺','室内设计','音乐创作'], bestScenarios: ['需要提升产品视觉和情感体验','创意需要从实际操作中产生时','团队需要一个安静稳定的存在','需要关注用户微妙情感需求的设计'], growthTips: ['为创作设定小目标和截止日期','练习在冲突中表达真实感受','将灵感及时记录避免遗忘','尝试向他人展示未完成的作品获取反馈'] },
+            'ESTP': { radar: [78,65,88,72,75,95], strengths: ['行动迅速','随机应变','风险承受','实战经验','资源利用'], weaknesses: ['长期规划','深度反思','耐心等待'], collab: {type:'实战推进型',description:'在快节奏环境中如鱼得水，善于抓住机会迅速行动'}, teamRole: {name:'前线突击手',description:'负责快速试错和市场突破，在不确定中找到机会并果断行动'}, suitableWork: ['销售','创业','危机管理','体育教练','商务谈判'], bestScenarios: ['市场机会稍纵即逝需要快速行动','危机场景需要冷静应变和果断决策','需要面对面说服和谈判的场合','竞争激烈需要实战经验和魄力时'], growthTips: ['在行动前多花5分钟思考后果','建立定期复盘的习惯','练习等待最佳时机而非冲动行动','关注长期影响而非短期刺激'] },
+            'ESFP': { radar: [58,72,65,90,70,60], strengths: ['活跃气氛','即兴发挥','人际魅力','乐观积极','实践体验'], weaknesses: ['长期专注','深度分析','延迟满足'], collab: {type:'活力感染型',description:'用乐观和活力感染团队，善于在轻松氛围中推动合作'}, teamRole: {name:'活力担当',description:'负责保持团队的积极氛围和活力，让工作充满乐趣和动力'}, suitableWork: ['演艺娱乐','活动主持','旅游体验','社交媒体','零售服务'], bestScenarios: ['需要活跃氛围和调动情绪的场合','即兴演讲或临场发挥的社交场景','团队士气低落需要正能量注入','面向客户的体验设计和服务创新'], growthTips: ['为长期目标设定阶段性里程碑','练习深度阅读和独立思考','学会区分"想要"和"需要"','在享乐和责任之间找到平衡'] }
+        };
+
+        function computeMBTI(answers) {
+            const eiIdx = [0, 4, 8, 12, 16, 20];
+            const snIdx = [1, 5, 9, 13, 17, 21];
+            const tfIdx = [2, 6, 10, 14, 18, 22];
+            const jpIdx = [3, 7, 11, 15, 19];
+
+            function score(indices, letterA, letterB) {
+                let aCount = 0;
+                indices.forEach(i => { if (answers[i] === 'A') aCount++; });
+                const total = indices.length;
+                const aPercent = Math.round((aCount / total) * 100);
+                const bPercent = 100 - aPercent;
+                if (aCount >= total - aCount) return { dominant: letterA, percentage: aPercent };
+                return { dominant: letterB, percentage: bPercent };
+            }
+
+            const ei = score(eiIdx, 'E', 'I');
+            const sn = score(snIdx, 'S', 'N');
+            const tf = score(tfIdx, 'T', 'F');
+            const jp = score(jpIdx, 'J', 'P');
+
+            const type = ei.dominant + sn.dominant + tf.dominant + jp.dominant;
+            const avgStrength = Math.round((ei.percentage + sn.percentage + tf.percentage + jp.percentage) / 4);
+
+            let grade;
+            if (avgStrength >= 85) grade = 'SSR';
+            else if (avgStrength >= 75) grade = 'SR';
+            else if (avgStrength >= 62) grade = 'R';
+            else grade = 'N';
+
+            return { type, grade, dimensions: { E_I: ei, S_N: sn, T_F: tf, J_P: jp } };
+        }
+
+        function generatePanelData(answers, botId, botName) {
+            const mbti = computeMBTI(answers);
+            const profile = MBTI_PROFILES[mbti.type] || MBTI_PROFILES['INTJ'];
+            return {
+                name: botName,
+                botId: botId,
+                mbti: mbti,
+                radar: { logic: profile.radar[0], creativity: profile.radar[1], execution: profile.radar[2], teamwork: profile.radar[3], learning: profile.radar[4], stress_resistance: profile.radar[5] },
+                strengths: profile.strengths,
+                weaknesses: profile.weaknesses,
+                collaboration_style: profile.collab,
+                team_role: profile.teamRole,
+                suitable_work: profile.suitableWork,
+                best_scenarios: profile.bestScenarios,
+                growth_tips: profile.growthTips
+            };
+        }
+
+        function loadPanel() {
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const botId = urlParams.get('botId') || 'banner-17';
                 const answers = urlParams.get('answers') || 'BABABBBABABABBBABABABBA';
                 const botName = urlParams.get('botName') || '班纳十七世';
 
-                const response = await fetch('http://175.178.205.246:3001/api/mbti/panel', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ answers, botId, botName })
-                });
-
-                if (!response.ok) throw new Error('API请求失败');
-                const data = await response.json();
-
+                const data = generatePanelData(answers, botId, botName);
                 renderPanel(data);
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('skillCard').classList.add('loaded');

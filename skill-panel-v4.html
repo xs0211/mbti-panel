@@ -618,12 +618,24 @@
             };
         }
 
+        function getParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let botId = urlParams.get('botId');
+            let answers = urlParams.get('answers');
+            let botName = urlParams.get('botName');
+            if (botId && answers && botName) return { botId, answers, botName };
+            // Feishu escapes & to &amp; — fallback: parse from raw URL
+            const raw = window.location.href.replace(/&amp;/g, '&');
+            const fixed = new URLSearchParams(raw.split('?')[1] || '');
+            botId = botId || fixed.get('botId');
+            answers = answers || fixed.get('answers');
+            botName = botName || fixed.get('botName');
+            return { botId, answers, botName };
+        }
+
         function loadPanel() {
             try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const botId = urlParams.get('botId');
-                const answers = urlParams.get('answers');
-                const botName = urlParams.get('botName');
+                const { botId, answers, botName } = getParams();
 
                 if (!botId || !answers || !botName) {
                     throw new Error('缺少必需的URL参数：botId、answers、botName');

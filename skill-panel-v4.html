@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>数字人技能面板</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onerror="window.__chartFailed=true"></script>
     <style>
         :root {
             --bg-deep: #1A1410;
@@ -651,48 +651,52 @@
                 `;
             }).join('');
 
-            const ctx = document.getElementById('radarChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: ['逻辑', '创意', '执行', '协作', '学习', '抗压'],
-                    datasets: [{
-                        label: '能力值',
-                        data: [data.radar.logic, data.radar.creativity, data.radar.execution,
-                               data.radar.teamwork, data.radar.learning, data.radar.stress_resistance],
-                        backgroundColor: 'rgba(225, 151, 0, 0.12)',
-                        borderColor: '#FFBF01',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#E19700',
-                        pointBorderColor: '#F5E6D0',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        r: {
-                            min: 0, max: 100,
-                            ticks: {
-                                stepSize: 20,
-                                color: 'rgba(245, 230, 208, 0.5)',
-                                backdropColor: 'transparent',
-                                font: { size: 11 }
-                            },
-                            grid: { color: 'rgba(255, 191, 1, 0.1)' },
-                            pointLabels: {
-                                color: '#F5E6D0',
-                                font: { size: 13, weight: '500' }
-                            },
-                            angleLines: { color: 'rgba(255, 191, 1, 0.1)' }
+            if (typeof Chart !== 'undefined') {
+                const ctx = document.getElementById('radarChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['逻辑', '创意', '执行', '协作', '学习', '抗压'],
+                        datasets: [{
+                            label: '能力值',
+                            data: [data.radar.logic, data.radar.creativity, data.radar.execution,
+                                   data.radar.teamwork, data.radar.learning, data.radar.stress_resistance],
+                            backgroundColor: 'rgba(225, 151, 0, 0.12)',
+                            borderColor: '#FFBF01',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#E19700',
+                            pointBorderColor: '#F5E6D0',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            r: {
+                                min: 0, max: 100,
+                                ticks: {
+                                    stepSize: 20,
+                                    color: 'rgba(245, 230, 208, 0.5)',
+                                    backdropColor: 'transparent',
+                                    font: { size: 11 }
+                                },
+                                grid: { color: 'rgba(255, 191, 1, 0.1)' },
+                                pointLabels: {
+                                    color: '#F5E6D0',
+                                    font: { size: 13, weight: '500' }
+                                },
+                                angleLines: { color: 'rgba(255, 191, 1, 0.1)' }
+                            }
                         }
                     }
-                }
-            });
+                });
+            } else {
+                document.getElementById('radarChart').parentElement.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:40px;">雷达图加载失败（CDN限制），其他信息正常显示</div>';
+            }
 
             document.getElementById('strengthsList').innerHTML = data.strengths.map(s =>
                 `<span class="trait-tag strength-tag">${s}</span>`).join('');

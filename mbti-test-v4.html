@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI人格测试 - 二元AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .question {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        .question-text {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .options {
+            display: flex;
+            gap: 10px;
+        }
+        .option {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            background: white;
+        }
+        .option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        .progress {
+            background: #e0e0e0;
+            height: 6px;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result {
+            text-align: center;
+            padding: 20px;
+        }
+        .result h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        .result-link {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="startScreen">
+            <h1>MBTI人格测试</h1>
+            <p class="subtitle">23道题，了解你的人格类型</p>
+
+            <div class="input-group">
+                <label>Bot ID</label>
+                <input type="text" id="botId" placeholder="例如：banner-20" required>
+            </div>
+
+            <div class="input-group">
+                <label>Bot 名称</label>
+                <input type="text" id="botName" placeholder="例如：班纳二十世" required>
+            </div>
+
+            <button class="btn" onclick="startTest()">开始测试</button>
+        </div>
+
+        <div id="testScreen" class="hidden">
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div id="questionContainer"></div>
+
+            <button class="btn" id="nextBtn" onclick="nextQuestion()" disabled>下一题</button>
+        </div>
+
+        <div id="resultScreen" class="hidden">
+            <div class="result">
+                <h2>测试完成！</h2>
+                <p>点击下方链接查看你的技能面板：</p>
+                <a id="resultLink" class="result-link" target="_blank">查看我的技能面板</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { text: "1. 在团队中，你更倾向于", a: "主动发起讨论和活动", b: "倾听和独立思考" },
+            { text: "2. 解决问题时，你更依赖", a: "已验证的方法和经验", b: "新思路和可能性" },
+            { text: "3. 做决策时，你更看重", a: "逻辑和效率", b: "人际和情感影响" },
+            { text: "4. 工作方式上，你更喜欢", a: "明确计划和截止日期", b: "灵活调整和即兴发挥" },
+            { text: "5. 获取能量的方式", a: "与他人交流互动", b: "独处和深度思考" },
+            { text: "6. 面对新信息", a: "关注具体事实和细节", b: "思考背后的模式和意义" },
+            { text: "7. 评价他人时", a: "基于客观标准和逻辑", b: "考虑个人情况和感受" },
+            { text: "8. 对待任务", a: "提前完成，按部就班", b: "临近截止才集中精力" },
+            { text: "9. 社交偏好", a: "享受热闹和结识新人", b: "珍惜深度和少数关系" },
+            { text: "10. 学习新知识", a: "通过实践和操作", b: "理解概念和理论" },
+            { text: "11. 给建议时", a: "直接指出问题和方案", b: "先共情再提建议" },
+            { text: "12. 生活节奏", a: "喜欢结构和可预测性", b: "享受自发和灵活性" },
+            { text: "13. 压力下", a: "寻求支持和讨论", b: "独自处理和反思" },
+            { text: "14. 看待世界", a: "关注现实和当下", b: "思考未来和可能" },
+            { text: "15. 冲突处理", a: "就事论事，解决问题", b: "维护关系，寻求和谐" },
+            { text: "16. 计划旅行", a: "详细行程和预订", b: "大致方向，随遇而安" },
+            { text: "17. 放松方式", a: "社交活动和外出", b: "独处和安静活动" },
+            { text: "18. 描述自己", a: "务实和现实", b: "理想和抽象" },
+            { text: "19. 团队贡献", a: "分析和优化流程", b: "关心成员和氛围" },
+            { text: "20. 面对变化", a: "需要时间适应", b: "保持开放和好奇" },
+            { text: "21. 交流风格", a: "清晰直接，重点突出", b: "含蓄委婉，照顾感受" },
+            { text: "22. 收尾项目", a: "按时完成，追求完美", b: "灵活延长，持续改进" },
+            { text: "23. 决策风格", a: "快速决定，果断行动", b: "充分考虑，谨慎选择" }
+        ];
+
+        let answers = [];
+        let currentQ = 0;
+        let botId, botName;
+
+        function startTest() {
+            botId = document.getElementById('botId').value.trim();
+            botName = document.getElementById('botName').value.trim();
+
+            if (!botId || !botName) {
+                alert('请填写完整信息');
+                return;
+            }
+
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('testScreen').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQ];
+            const container = document.getElementById('questionContainer');
+
+            container.innerHTML = `
+                <div class="question">
+                    <div class="question-text">${q.text}</div>
+                    <div class="options">
+                        <div class="option" onclick="selectOption('A')">${q.a}</div>
+                        <div class="option" onclick="selectOption('B')">${q.b}</div>
+                    </div>
+                </div>
+            `;
+
+            updateProgress();
+        }
+
+        function selectOption(choice) {
+            answers[currentQ] = choice;
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            event.target.classList.add('selected');
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if (currentQ < questions.length) {
+                showQuestion();
+                document.getElementById('nextBtn').disabled = true;
+            } else {
+                showResult();
+            }
+        }
+
+        function updateProgress() {
+            const percent = ((currentQ + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = percent + '%';
+        }
+
+        function showResult() {
+            const answersStr = answers.join('');
+            const panelUrl = `http://175.178.205.246/skill-panel-v4.html?botId=${encodeURIComponent(botId)}&answers=${answersStr}&botName=${encodeURIComponent(botName)}`;
+
+            document.getElementById('testScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+
+            const link = document.getElementById('resultLink');
+            link.href = panelUrl;
+            link.textContent = '查看我的技能面板 →';
+        }
+    </script>
+</body>
+</html>

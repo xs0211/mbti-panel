@@ -1,932 +1,681 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ENTJ 指挥官 - 数字人技能面板</title>
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-:root {
-  --bg-deep: #1A1410;
-  --bg-mid: #251E17;
-  --primary-gold: #E19700;
-  --accent-gold: #FFBF01;
-  --text-gold: #E8C96D;
-  --border-gold: #8B6914;
-  --border-light: #C8A951;
-  --text-primary: #F5EDE0;
-  --text-secondary: #B8A88A;
-  --text-muted: #7A6B55;
-  --glass-bg: rgba(26, 20, 16, 0.75);
-  --glass-border: rgba(200, 169, 81, 0.25);
-  --glass-highlight: rgba(255, 191, 1, 0.08);
-  --shadow-ambient: rgba(0, 0, 0, 0.6);
-  --shadow-gold: rgba(225, 151, 0, 0.15);
-  --glow-gold: rgba(255, 191, 1, 0.4);
-  --success-bg: rgba(225, 151, 0, 0.12);
-  --success-border: rgba(139, 105, 20, 0.4);
-  --success-text: #E8C96D;
-  --warning-bg: rgba(255, 140, 0, 0.08);
-  --warning-border: rgba(255, 140, 0, 0.3);
-  --warning-text: #FFB366;
-}
-
-body {
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-  background: var(--bg-deep);
-  color: var(--text-primary);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* === LAYER 1: Background === */
-.background-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(225, 151, 0, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 80%, rgba(139, 105, 20, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(37, 30, 23, 1) 0%, rgba(26, 20, 16, 1) 100%);
-}
-
-.background-particles {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  opacity: 0.3;
-  background-image:
-    radial-gradient(1px 1px at 20% 30%, var(--accent-gold) 50%, transparent 100%),
-    radial-gradient(1px 1px at 80% 10%, var(--text-gold) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 60% 70%, var(--accent-gold) 50%, transparent 100%),
-    radial-gradient(1px 1px at 10% 80%, var(--primary-gold) 50%, transparent 100%),
-    radial-gradient(1px 1px at 90% 50%, var(--text-gold) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 40% 90%, var(--accent-gold) 50%, transparent 100%);
-  animation: float-particles 20s ease-in-out infinite;
-}
-
-@keyframes float-particles {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  25% { transform: translateY(-5px) translateX(3px); }
-  50% { transform: translateY(-2px) translateX(-2px); }
-  75% { transform: translateY(-8px) translateX(1px); }
-}
-
-/* === MAIN CONTAINER === */
-.panel-container {
-  position: relative;
-  z-index: 10;
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 0 24px;
-}
-
-/* === HEADER === */
-.panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  padding: 0 8px;
-}
-
-.character-identity {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.character-name {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--text-primary);
-  text-shadow: 0 0 20px var(--shadow-gold);
-  letter-spacing: 1px;
-}
-
-.mbti-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  background: linear-gradient(135deg, var(--primary-gold), var(--accent-gold));
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--bg-deep);
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  box-shadow: 0 2px 12px var(--shadow-gold), 0 0 20px rgba(255, 191, 1, 0.2);
-}
-
-.level-badge {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.level-rank {
-  font-size: 16px;
-  font-weight: 700;
-  padding: 6px 16px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--primary-gold), var(--accent-gold));
-  color: var(--bg-deep);
-  letter-spacing: 1px;
-}
-
-.level-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--text-muted);
-}
-
-/* === CHARACTER SECTION === */
-.character-section {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-.character-portrait {
-  position: relative;
-  height: 360px;
-  border-radius: 16px;
-  overflow: hidden;
-  background: linear-gradient(180deg, rgba(225, 151, 0, 0.05) 0%, rgba(26, 20, 16, 0.9) 100%);
-  border: 1px solid var(--glass-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.character-portrait::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 30%, rgba(255, 191, 1, 0.06) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.character-portrait::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border-light), transparent);
-}
-
-.portrait-svg {
-  width: 100%;
-  height: 100%;
-  opacity: 0.95;
-  filter: drop-shadow(0 4px 16px rgba(255, 191, 1, 0.25));
-}
-
-/* === OVERVIEW CARD === */
-.overview-card {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 24px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px var(--shadow-ambient);
-}
-
-.overview-card h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-gold);
-  margin-bottom: 16px;
-  letter-spacing: 0.5px;
-}
-
-.overview-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(200, 169, 81, 0.1);
-}
-
-.overview-item:last-child {
-  border-bottom: none;
-}
-
-.overview-label {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.overview-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-/* === MBTI DIMENSIONS === */
-.dimensions-section {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 24px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px var(--shadow-ambient);
-  margin-bottom: 24px;
-}
-
-.dimensions-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-
-.dimension-item {
-  text-align: center;
-  padding: 16px 10px;
-  background: rgba(225, 151, 0, 0.05);
-  border-radius: 12px;
-  border: 1px solid rgba(200, 169, 81, 0.15);
-}
-
-.dimension-label {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
-}
-
-.dimension-value {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-gold);
-  margin-bottom: 8px;
-}
-
-.dimension-bar {
-  width: 100%;
-  height: 4px;
-  background: rgba(200, 169, 81, 0.2);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.dimension-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary-gold), var(--accent-gold));
-  border-radius: 2px;
-  transition: width 0.5s ease;
-}
-
-/* === RADAR CHART === */
-.radar-section {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 24px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px var(--shadow-ambient);
-  margin-bottom: 24px;
-}
-
-.radar-section h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-gold);
-  margin-bottom: 20px;
-  text-align: center;
-  letter-spacing: 0.5px;
-}
-
-.radar-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 320px;
-  position: relative;
-}
-
-#radarCanvas {
-  filter: drop-shadow(0 0 20px rgba(255, 191, 1, 0.15));
-}
-
-/* === TRAITS === */
-.traits-section {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-.trait-box {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 24px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px var(--shadow-ambient);
-}
-
-.trait-box h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-gold);
-  margin-bottom: 16px;
-  letter-spacing: 0.5px;
-}
-
-.trait-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.trait-tag {
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  border: 1px solid;
-  transition: all 0.2s ease;
-}
-
-.trait-tag.strength {
-  background: var(--success-bg);
-  border-color: var(--success-border);
-  color: var(--success-text);
-}
-
-.trait-tag.weakness {
-  background: var(--warning-bg);
-  border-color: var(--warning-border);
-  color: var(--warning-text);
-}
-
-.trait-tag:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--shadow-gold);
-}
-
-/* === COLLABORATION === */
-.collaboration-section {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 24px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px var(--shadow-ambient);
-  margin-bottom: 24px;
-}
-
-.collaboration-section h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-gold);
-  margin-bottom: 20px;
-  letter-spacing: 0.5px;
-}
-
-.collab-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.collab-item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  text-align: center;
-}
-
-.collab-label {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.collab-value {
-  font-size: 16px;
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-/* === TEAM ROLE === */
-.role-section {
-  background: var(--glass-bg);
-  border-radius: 16px;
-  padding: 28px;
-  margin-bottom: 24px;
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 32px var(--shadow-ambient);
-}
-
-.role-header h3 {
-  font-size: 18px;
-  margin: 0 0 16px 0;
-  color: var(--text-gold);
-  font-weight: 600;
-}
-
-.role-name {
-  font-size: 22px;
-  color: var(--text-primary);
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-
-.role-desc {
-  font-size: 15px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-/* === DETAIL SECTIONS === */
-.detail-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-.detail-box {
-  background: var(--glass-bg);
-  border-radius: 16px;
-  padding: 24px;
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 32px var(--shadow-ambient);
-}
-
-.detail-box h3 {
-  font-size: 16px;
-  margin: 0 0 16px 0;
-  color: var(--text-gold);
-  font-weight: 600;
-}
-
-.detail-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.detail-list li {
-  font-size: 14px;
-  color: var(--text-secondary);
-  padding-left: 20px;
-  position: relative;
-  line-height: 1.5;
-}
-
-.detail-list li::before {
-  content: '◆';
-  position: absolute;
-  left: 0;
-  color: var(--accent-gold);
-  font-size: 10px;
-  top: 2px;
-}
-
-.tips-box {
-  background: linear-gradient(135deg, rgba(225, 151, 0, 0.05), rgba(200, 169, 81, 0.03));
-  border: 1px solid var(--glass-border);
-}
-
-/* === FOOTER === */
-.panel-footer {
-  text-align: center;
-  padding: 32px 0;
-  color: var(--text-muted);
-  font-size: 12px;
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  .panel-container {
-    margin: 20px auto;
-    padding: 0 16px;
-  }
-
-  .panel-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .character-name {
-    font-size: 24px;
-  }
-
-  .mbti-badge {
-    font-size: 11px;
-    padding: 5px 12px;
-  }
-
-  .level-rank {
-    font-size: 14px;
-  }
-
-  .character-section {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .character-portrait {
-    height: 280px;
-  }
-
-  .portrait-avatar {
-    width: 120px;
-    height: 120px;
-    font-size: 48px;
-  }
-
-  .overview-card,
-  .dimensions-section,
-  .radar-section,
-  .trait-box,
-  .collaboration-section {
-    padding: 20px;
-  }
-
-  .dimensions-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
-  .radar-container {
-    min-height: 280px;
-  }
-
-  #radarCanvas {
-    max-width: 100%;
-    height: auto;
-  }
-
-  .traits-section {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .collab-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .trait-tag {
-    font-size: 12px;
-    padding: 6px 12px;
-  }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字人技能面板</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #1A1410;
+            --bg-mid: #2A2018;
+            --primary: #E19700;
+            --accent: #FFBF01;
+            --accent-dim: #B87A00;
+            --glow-color: rgba(255, 191, 1, 0.6);
+            --glow-soft: rgba(225, 151, 0, 0.3);
+            --glass-bg: rgba(26, 20, 16, 0.75);
+            --glass-border: rgba(255, 191, 1, 0.15);
+            --glass-highlight: rgba(255, 255, 255, 0.05);
+
+            --text-primary: #F5E6D0;
+            --text-secondary: #A89070;
+            --text-muted: rgba(245, 230, 208, 0.45);
+
+            --grade-ssr-start: #fceabb;
+            --grade-ssr-end: #f8b500;
+            --grade-ssr-glow: rgba(248, 181, 0, 0.4);
+            --grade-sr-start: #E19700;
+            --grade-sr-end: #FFBF01;
+            --grade-sr-glow: rgba(225, 151, 0, 0.4);
+            --grade-r-start: #8B6914;
+            --grade-r-end: #B8860B;
+            --grade-r-glow: rgba(139, 105, 20, 0.3);
+            --grade-n-start: #6b5b3d;
+            --grade-n-end: #8b7355;
+            --grade-n-glow: rgba(107, 91, 61, 0.2);
+
+            --tag-strength-bg: rgba(225, 151, 0, 0.12);
+            --tag-strength-border: rgba(255, 191, 1, 0.4);
+            --tag-strength-text: #FFBF01;
+            --tag-weakness-bg: rgba(184, 122, 0, 0.12);
+            --tag-weakness-border: rgba(184, 122, 0, 0.4);
+            --tag-weakness-text: #D4A050;
+
+            --module-bg: rgba(255, 255, 255, 0.03);
+            --module-border: rgba(255, 191, 1, 0.1);
+            --radius: 16px;
+            --radius-sm: 8px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Layer 1: Gradient Background */
+        .layer-background {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 30%, rgba(225, 151, 0, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 80% 70%, rgba(255, 191, 1, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 100% 100% at 50% 50%, rgba(42, 32, 24, 1) 0%, var(--bg-deep) 100%);
+        }
+
+        .layer-background::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* Content Container */
+        .content-wrapper {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .loading { color: white; font-size: 18px; text-align: center; position: relative; z-index: 2; }
+        .error { background: rgba(231, 76, 60, 0.9); color: white; padding: 20px; border-radius: 10px; max-width: 500px; text-align: center; position: relative; z-index: 2; }
+
+        .skill-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 var(--glass-highlight);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            display: none;
+            transition: transform 0.2s ease;
+        }
+        .skill-card.loaded { display: block; }
+
+        .skill-card:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 24px 72px rgba(0, 0, 0, 0.6),
+                0 0 40px var(--glow-soft),
+                inset 0 1px 0 var(--glass-highlight);
+        }
+
+        .grade-stripe {
+            height: 8px;
+            animation: shimmer 3s infinite;
+            position: relative;
+        }
+        .grade-stripe::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+        }
+        .grade-stripe.ssr { background: linear-gradient(90deg, var(--grade-ssr-start), var(--grade-ssr-end), var(--grade-ssr-start)); }
+        .grade-stripe.sr { background: linear-gradient(90deg, var(--grade-sr-start), var(--grade-sr-end), var(--grade-sr-start)); }
+        .grade-stripe.r { background: linear-gradient(90deg, var(--grade-r-start), var(--grade-r-end), var(--grade-r-start)); }
+        .grade-stripe.n { background: linear-gradient(90deg, var(--grade-n-start), var(--grade-n-end), var(--grade-n-start)); }
+
+        @keyframes shimmer { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+        .card-header {
+            padding: 30px 40px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            position: relative;
+            background: var(--module-bg);
+            border-bottom: 1px solid var(--module-border);
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(225, 151, 0, 0.3), transparent);
+            border: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 8px 20px var(--glow-soft);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 30px var(--glow-color);
+        }
+        .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+        .header-info { flex: 1; }
+        .bot-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .mbti-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            background: var(--module-bg);
+            color: var(--accent);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            transition: all 0.25s ease;
+        }
+        .mbti-badge:hover {
+            background: rgba(225, 151, 0, 0.15);
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px var(--glow-soft);
+        }
+
+        .grade-badge {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        .grade-badge:hover {
+            transform: scale(1.08) rotate(2deg);
+        }
+        .grade-badge.ssr { background: linear-gradient(135deg, var(--grade-ssr-start), var(--grade-ssr-end)); color: #8b4513; box-shadow: 0 8px 20px var(--grade-ssr-glow); }
+        .grade-badge.sr { background: linear-gradient(135deg, var(--grade-sr-start), var(--grade-sr-end)); color: var(--bg-deep); box-shadow: 0 8px 20px var(--grade-sr-glow); }
+        .grade-badge.r { background: linear-gradient(135deg, var(--grade-r-start), var(--grade-r-end)); color: #fff; box-shadow: 0 8px 20px var(--grade-r-glow); }
+        .grade-badge.n { background: linear-gradient(135deg, var(--grade-n-start), var(--grade-n-end)); color: #fff; box-shadow: 0 8px 20px var(--grade-n-glow); }
+
+        .dimensions-wrapper {
+            padding: 0 40px 20px 40px;
+            background: var(--module-bg);
+            border-bottom: 1px solid var(--module-border);
+        }
+
+        .card-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .radar-section, .trait-box, .collaboration-section, .detail-section {
+            background: var(--module-bg);
+            border-radius: var(--radius-sm);
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--module-border);
+            transition: all 0.25s ease;
+        }
+
+        .radar-section:hover, .trait-box:hover, .collaboration-section:hover, .detail-section:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 191, 1, 0.25);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, var(--primary), var(--accent));
+            border-radius: 2px;
+            box-shadow: 0 2px 8px var(--glow-soft);
+        }
+
+        .radar-container { height: 300px; position: relative; }
+
+        .traits-section { display: flex; flex-direction: column; gap: 20px; }
+        .trait-box { padding: 20px; }
+        .trait-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        .trait-tag {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+        .trait-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .strength-tag {
+            background: var(--tag-strength-bg);
+            color: var(--tag-strength-text);
+            border: 1px solid var(--tag-strength-border);
+        }
+        .strength-tag:hover {
+            background: rgba(225, 151, 0, 0.2);
+            border-color: var(--primary);
+        }
+        .weakness-tag {
+            background: var(--tag-weakness-bg);
+            color: var(--tag-weakness-text);
+            border: 1px solid var(--tag-weakness-border);
+        }
+        .weakness-tag:hover {
+            background: rgba(184, 122, 0, 0.2);
+            border-color: var(--accent-dim);
+        }
+
+        .collaboration-section { grid-column: 1 / -1; }
+        .collab-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 15px; }
+        .collab-item { display: flex; flex-direction: column; gap: 8px; }
+        .collab-label { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+        .collab-value { font-size: 16px; color: var(--text-primary); font-weight: 600; }
+
+        .dimensions-display { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
+        .dimension-item {
+            text-align: center;
+            padding: 15px 10px;
+            background: var(--module-bg);
+            border-radius: 10px;
+            border: 1px solid var(--module-border);
+            transition: all 0.25s ease;
+        }
+        .dimension-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+        .dimension-label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+        .dimension-value { font-size: 24px; font-weight: bold; color: var(--accent); text-shadow: 0 2px 8px var(--glow-soft); }
+        .dimension-bar { width: 100%; height: 4px; background: var(--module-border); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+        .dimension-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 2px; transition: width 0.8s ease; box-shadow: 0 0 8px var(--glow-soft); }
+
+        .detail-section { grid-column: 1 / -1; }
+        .detail-content { font-size: 15px; line-height: 1.8; color: var(--text-secondary); margin-top: 12px; }
+        .detail-list { list-style: none; padding: 0; margin-top: 12px; }
+        .detail-list li { padding: 8px 0; padding-left: 20px; position: relative; color: var(--text-secondary); }
+        .detail-list li::before { content: '▸'; position: absolute; left: 0; color: var(--accent); font-weight: bold; }
+        .role-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 8px 8px 8px 0;
+            background: var(--module-bg);
+            border: 1px solid var(--module-border);
+            border-radius: 25px;
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .role-badge:hover {
+            background: rgba(225, 151, 0, 0.12);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .detail-section {
+            grid-column: 1 / -1;
+            background: var(--module-bg);
+            border: 1px solid var(--module-border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+        .role-card {
+            background: rgba(225, 151, 0, 0.06);
+            border: 1px solid rgba(255, 191, 1, 0.2);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+        }
+        .role-card .role-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        .role-card .role-desc {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .detail-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .detail-tags .detail-tag {
+            padding: 8px 16px;
+            background: var(--tag-strength-bg);
+            border: 1px solid var(--tag-strength-border);
+            border-radius: 20px;
+            color: var(--tag-strength-text);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .detail-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .detail-list .detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--module-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .detail-list .detail-item::before {
+            content: '▸';
+            color: var(--accent);
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .content-wrapper { padding: 10px; align-items: flex-start; }
+            .skill-card { border-radius: 14px; }
+            .card-header { padding: 16px; flex-direction: column; text-align: center; gap: 12px; }
+            .card-body { grid-template-columns: 1fr; gap: 16px; padding: 16px; }
+            .grade-badge { position: static; margin-top: 10px; padding: 8px 16px; font-size: 18px; }
+            .dimensions-wrapper { padding: 0 16px 16px 16px !important; }
+            .dimensions-display { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .dimension-value { font-size: 18px; }
+            .radar-container { height: 220px; }
+            .radar-section, .trait-box, .collaboration-section, .detail-section { padding: 16px; }
+            .collab-grid { grid-template-columns: 1fr; gap: 12px; }
+            .collab-value { font-size: 14px; word-break: break-word; }
+            .bot-name { font-size: 20px; }
+            .avatar { width: 72px; height: 72px; font-size: 28px; }
+            .section-title { font-size: 15px; margin-bottom: 12px; }
+            .trait-tag { padding: 6px 12px; font-size: 13px; }
+            .mbti-badge { font-size: 15px; padding: 6px 12px; }
+        }
+
+        @media (max-width: 375px) {
+            .content-wrapper { padding: 6px; }
+            .card-header { padding: 12px; }
+            .card-body { padding: 12px; }
+            .dimensions-wrapper { padding: 0 12px 12px 12px !important; }
+            .radar-container { height: 180px; }
+            .avatar { width: 60px; height: 60px; font-size: 24px; }
+            .bot-name { font-size: 18px; }
+        }
+    </style>
 </head>
 <body>
-<!-- Layer 1: Background -->
-<div class="background-layer"></div>
-<div class="background-particles"></div>
+    <!-- Layer 1: Background -->
+    <div class="layer-background"></div>
 
-<!-- Main Panel -->
-<div class="panel-container">
+    <!-- Content -->
+    <div class="content-wrapper">
+        <div class="loading" id="loading">加载中...</div>
+        <div class="error" id="error" style="display:none;"></div>
 
-  <!-- Header -->
-  <div class="panel-header">
-    <div class="character-identity">
-      <h1 class="character-name">十七世</h1>
-      <span class="mbti-badge">ENTJ 指挥官</span>
-    </div>
-    <div class="level-badge">
-      <span class="level-rank">高级</span>
-      <span class="level-label">Level</span>
-    </div>
-  </div>
+        <div class="skill-card" id="skillCard">
+            <div class="grade-stripe" id="gradeStripe"></div>
 
-  <!-- Character Section: Portrait + Overview -->
-  <div class="character-section">
-    <div class="character-portrait">
-      <svg class="portrait-svg" viewBox="0 0 280 360" xmlns="http://www.w3.org/2000/svg">
-        <!-- Background glow -->
-        <defs>
-          <radialGradient id="portraitGlow" cx="50%" cy="40%" r="50%">
-            <stop offset="0%" stop-color="rgba(255,191,1,0.15)"/>
-            <stop offset="100%" stop-color="transparent"/>
-          </radialGradient>
-          <linearGradient id="goldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#FFBF01"/>
-            <stop offset="100%" stop-color="#E19700"/>
-          </linearGradient>
-          <linearGradient id="cloakGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#3D3225"/>
-            <stop offset="100%" stop-color="#1A1410"/>
-          </linearGradient>
-          <linearGradient id="armorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#8B6914"/>
-            <stop offset="50%" stop-color="#C8A951"/>
-            <stop offset="100%" stop-color="#8B6914"/>
-          </linearGradient>
-        </defs>
-        <rect width="280" height="360" fill="url(#portraitGlow)"/>
-        <!-- Body / Cloak -->
-        <path d="M80 360 L90 240 C95 210 110 195 140 185 C170 195 185 210 190 240 L200 360" fill="url(#cloakGrad)" stroke="url(#armorGrad)" stroke-width="1.5"/>
-        <!-- Shoulder armor left -->
-        <ellipse cx="100" cy="210" rx="28" ry="14" fill="url(#armorGrad)" opacity="0.9"/>
-        <!-- Shoulder armor right -->
-        <ellipse cx="180" cy="210" rx="28" ry="14" fill="url(#armorGrad)" opacity="0.9"/>
-        <!-- Chest plate -->
-        <path d="M110 210 L140 250 L170 210 Z" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.7"/>
-        <path d="M120 220 L140 238 L160 220" fill="none" stroke="url(#goldGrad)" stroke-width="1" opacity="0.5"/>
-        <!-- Neck -->
-        <rect x="128" y="165" width="24" height="25" rx="12" fill="#D4A574" opacity="0.8"/>
-        <!-- Head -->
-        <ellipse cx="140" cy="140" rx="38" ry="44" fill="#D4A574" opacity="0.85"/>
-        <!-- Hair -->
-        <path d="M102 130 C102 100 115 85 140 82 C165 85 178 100 178 130 L175 125 C175 102 162 92 140 90 C118 92 105 102 105 125 Z" fill="#2D2318"/>
-        <!-- Eyes -->
-        <ellipse cx="127" cy="143" rx="5" ry="4" fill="#1A1410"/>
-        <ellipse cx="153" cy="143" rx="5" ry="4" fill="#1A1410"/>
-        <!-- Eye glow -->
-        <circle cx="128" cy="142" r="1.5" fill="#FFBF01" opacity="0.6"/>
-        <circle cx="154" cy="142" r="1.5" fill="#FFBF01" opacity="0.6"/>
-        <!-- Brows -->
-        <path d="M119 135 L135 133" stroke="#2D2318" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M145 133 L161 135" stroke="#2D2318" stroke-width="2.5" stroke-linecap="round"/>
-        <!-- Nose -->
-        <path d="M140 145 L138 155 L142 155" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
-        <!-- Mouth -->
-        <path d="M132 162 C136 165 144 165 148 162" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="1.5" stroke-linecap="round"/>
-        <!-- Crown / headpiece -->
-        <path d="M115 110 L120 95 L130 105 L140 88 L150 105 L160 95 L165 110" fill="none" stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="140" cy="92" r="4" fill="#FFBF01" opacity="0.8"/>
-        <!-- Medal on chest -->
-        <circle cx="140" cy="265" r="10" fill="url(#goldGrad)" opacity="0.8"/>
-        <circle cx="140" cy="265" r="6" fill="none" stroke="var(--bg-deep)" stroke-width="1.5"/>
-        <!-- Ambient particles -->
-        <circle cx="60" cy="80" r="1" fill="#FFBF01" opacity="0.4"/>
-        <circle cx="220" cy="120" r="1.2" fill="#FFBF01" opacity="0.3"/>
-        <circle cx="50" cy="280" r="0.8" fill="#E8C96D" opacity="0.5"/>
-        <circle cx="230" cy="300" r="1" fill="#E8C96D" opacity="0.3"/>
-      </svg>
-    </div>
-    <div class="overview-card">
-      <h3>角色概览</h3>
-      <div class="overview-item">
-        <span class="overview-label">人格类型</span>
-        <span class="overview-value">ENTJ 指挥官</span>
-      </div>
-      <div class="overview-item">
-        <span class="overview-label">团队角色</span>
-        <span class="overview-value">战略规划者</span>
-      </div>
-      <div class="overview-item">
-        <span class="overview-label">核心驱动力</span>
-        <span class="overview-value">效率至上 · 目标导向</span>
-      </div>
-      <div class="overview-item">
-        <span class="overview-label">擅长领域</span>
-        <span class="overview-value">项目管理 · 资源调配</span>
-      </div>
-      <div class="overview-item">
-        <span class="overview-label">协作模式</span>
-        <span class="overview-value">主导型 · 结果驱动</span>
-      </div>
-    </div>
-  </div>
+            <div class="card-header">
+                <div class="avatar" id="avatar"></div>
+                <div class="header-info">
+                    <div class="bot-name" id="botName"></div>
+                    <span class="mbti-badge" id="mbtiBadge"></span>
+                </div>
+                <div class="grade-badge" id="gradeBadge"></div>
+            </div>
 
-  <!-- MBTI Dimensions -->
-  <div class="dimensions-section">
-    <div class="dimensions-grid">
-      <div class="dimension-item">
-        <div class="dimension-label">外向 / 内向</div>
-        <div class="dimension-value">E 75%</div>
-        <div class="dimension-bar">
-          <div class="dimension-fill" style="width: 75%;"></div>
+            <div class="dimensions-wrapper">
+                <div class="dimensions-display" id="dimensionsDisplay"></div>
+            </div>
+
+            <div class="card-body">
+                <div class="radar-section">
+                    <div class="section-title">六维能力</div>
+                    <div class="radar-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="traits-section">
+                    <div class="trait-box">
+                        <div class="section-title">擅长领域</div>
+                        <div class="trait-list" id="strengthsList"></div>
+                    </div>
+                    <div class="trait-box">
+                        <div class="section-title">成长空间</div>
+                        <div class="trait-list" id="weaknessesList"></div>
+                    </div>
+                </div>
+
+                <div class="collaboration-section">
+                    <div class="section-title">协作风格</div>
+                    <div class="collab-grid" id="collabGrid"></div>
+                </div>
+
+                <div class="detail-section" id="teamRoleSection" style="display:none;">
+                    <div class="section-title">团队角色定位</div>
+                    <div class="role-card" id="teamRoleCard"></div>
+                </div>
+
+                <div class="detail-section" id="suitableWorkSection" style="display:none;">
+                    <div class="section-title">适合的工作类型</div>
+                    <div class="detail-tags" id="suitableWorkList"></div>
+                </div>
+
+                <div class="detail-section" id="bestScenariosSection" style="display:none;">
+                    <div class="section-title">优势场景</div>
+                    <div class="detail-list" id="bestScenariosList"></div>
+                </div>
+
+                <div class="detail-section" id="growthTipsSection" style="display:none;">
+                    <div class="section-title">成长建议</div>
+                    <div class="detail-list" id="growthTipsList"></div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="dimension-item">
-        <div class="dimension-label">直觉 / 实感</div>
-        <div class="dimension-value">N 82%</div>
-        <div class="dimension-bar">
-          <div class="dimension-fill" style="width: 82%;"></div>
-        </div>
-      </div>
-      <div class="dimension-item">
-        <div class="dimension-label">思考 / 情感</div>
-        <div class="dimension-value">T 88%</div>
-        <div class="dimension-bar">
-          <div class="dimension-fill" style="width: 88%;"></div>
-        </div>
-      </div>
-      <div class="dimension-item">
-        <div class="dimension-label">判断 / 知觉</div>
-        <div class="dimension-value">J 85%</div>
-        <div class="dimension-bar">
-          <div class="dimension-fill" style="width: 85%;"></div>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Radar Chart -->
-  <div class="radar-section">
-    <h3>六维能力</h3>
-    <div class="radar-container">
-      <canvas id="radarCanvas" width="380" height="320"></canvas>
-    </div>
-  </div>
+    <script>
+        const MBTI_NAMES = {
+            'INTJ': '建筑师', 'INTP': '逻辑学家', 'ENTJ': '指挥官', 'ENTP': '辩论家',
+            'INFJ': '提倡者', 'INFP': '调停者', 'ENFJ': '主人公', 'ENFP': '竞选者',
+            'ISTJ': '物流师', 'ISFJ': '守卫者', 'ESTJ': '总经理', 'ESFJ': '执政官',
+            'ISTP': '鉴赏家', 'ISFP': '探险家', 'ESTP': '企业家', 'ESFP': '表演者'
+        };
 
-  <!-- Traits -->
-  <div class="traits-section">
-    <div class="trait-box">
-      <h3>擅长领域</h3>
-      <div class="trait-list">
-        <span class="trait-tag strength">战略规划</span>
-        <span class="trait-tag strength">团队领导</span>
-        <span class="trait-tag strength">决策判断</span>
-        <span class="trait-tag strength">资源调配</span>
-        <span class="trait-tag strength">目标执行</span>
-      </div>
-    </div>
-    <div class="trait-box">
-      <h3>成长空间</h3>
-      <div class="trait-list">
-        <span class="trait-tag weakness">可能忽视情感</span>
-        <span class="trait-tag weakness">易急躁</span>
-        <span class="trait-tag weakness">对低效率容忍度低</span>
-      </div>
-    </div>
-  </div>
+        async function loadPanel() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const botId = urlParams.get('botId') || 'banner-17';
+                const answers = urlParams.get('answers') || 'BABABBBABABABBBABABABBA';
+                const botName = urlParams.get('botName') || '班纳十七世';
 
-  <!-- Collaboration -->
-  <div class="collaboration-section">
-    <h3>协作风格</h3>
-    <div class="collab-grid">
-      <div class="collab-item">
-        <div class="collab-label">决策模式</div>
-        <div class="collab-value">主导决策型</div>
-      </div>
-      <div class="collab-item">
-        <div class="collab-label">沟通偏好</div>
-        <div class="collab-value">直接高效</div>
-      </div>
-      <div class="collab-item">
-        <div class="collab-label">工作节奏</div>
-        <div class="collab-value">结果导向 · 快节奏</div>
-      </div>
-    </div>
-  </div>
+                const response = await fetch('http://175.178.205.246:3001/api/mbti/panel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ answers, botId, botName })
+                });
 
-  <!-- Team Role -->
-  <div class="role-section">
-    <div class="role-header">
-      <h3>团队角色定位</h3>
-    </div>
-    <div class="role-name">战略指挥官</div>
-    <div class="role-desc">负责统筹全局、制定战略方向、调配资源。擅长从宏观角度把控项目节奏，推动团队高效达成目标。</div>
-  </div>
+                if (!response.ok) throw new Error('API请求失败');
+                const data = await response.json();
 
-  <!-- Detail Sections -->
-  <div class="detail-section">
-    <div class="detail-box">
-      <h3>适合的工作类型</h3>
-      <ul class="detail-list">
-        <li>项目管理与统筹</li>
-        <li>战略规划与决策</li>
-        <li>团队管理与培养</li>
-        <li>资源整合与调配</li>
-        <li>目标设定与推进</li>
-      </ul>
-    </div>
-    <div class="detail-box">
-      <h3>优势场景</h3>
-      <ul class="detail-list">
-        <li>需要快速决策和明确方向的关键时刻</li>
-        <li>多团队协调和资源调配的复杂项目</li>
-        <li>目标导向、结果驱动的高压环境</li>
-        <li>需要打破僵局、推动变革的场景</li>
-      </ul>
-    </div>
-    <div class="detail-box tips-box">
-      <h3>成长建议</h3>
-      <ul class="detail-list">
-        <li>在追求效率时，给团队成员更多表达和消化的空间</li>
-        <li>培养同理心，关注团队成员的情感需求</li>
-        <li>接受不确定性，允许一定程度的试错和探索</li>
-      </ul>
-    </div>
-  </div>
+                renderPanel(data);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('skillCard').classList.add('loaded');
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = '加载失败: ' + error.message;
+            }
+        }
 
-  <!-- Footer -->
-  <div class="panel-footer">
-    数字人技能面板 · 班纳世家 · 2026
-  </div>
+        function renderPanel(data) {
+            const grade = data.mbti.grade.toLowerCase();
 
-</div>
+            document.getElementById('gradeStripe').className = `grade-stripe ${grade}`;
 
-<!-- Radar Chart Script -->
-<script>
-(function() {
-  const canvas = document.getElementById('radarCanvas');
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const cx = W / 2, cy = H / 2;
-  const R = 130;
+            const avatarElement = document.getElementById('avatar');
+            const avatarSeed = encodeURIComponent(data.botId || data.name);
+            const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${avatarSeed}`;
 
-  const dims = ['领导力', '执行力', '战略思维', '沟通协调', '创新能力', '情感感知'];
-  const values = [95, 90, 92, 78, 80, 55];
-  const n = dims.length;
+            const avatarImg = document.createElement('img');
+            avatarImg.src = avatarUrl;
+            avatarImg.alt = data.name;
+            avatarImg.onerror = () => {
+                avatarElement.textContent = data.name.slice(-2);
+            };
+            avatarElement.appendChild(avatarImg);
 
-  function angleFor(i) { return (Math.PI * 2 * i / n) - Math.PI / 2; }
-  function pointAt(i, r) {
-    const a = angleFor(i);
-    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
-  }
+            document.getElementById('botName').textContent = data.name;
+            document.getElementById('mbtiBadge').textContent = `${data.mbti.type} ${MBTI_NAMES[data.mbti.type] || ''}`;
+            document.getElementById('gradeBadge').textContent = data.mbti.grade;
+            document.getElementById('gradeBadge').className = `grade-badge ${grade}`;
 
-  // Draw grid rings
-  ctx.strokeStyle = 'rgba(200, 169, 81, 0.12)';
-  ctx.lineWidth = 1;
-  for (let ring = 1; ring <= 4; ring++) {
-    ctx.beginPath();
-    for (let i = 0; i <= n; i++) {
-      const [x, y] = pointAt(i % n, R * ring / 4);
-      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-    ctx.stroke();
-  }
+            const dims = data.mbti.dimensions;
+            const dimLabels = { 'E_I': '内向/外向', 'S_N': '实感/直觉', 'T_F': '思考/情感', 'J_P': '判断/知觉' };
+            document.getElementById('dimensionsDisplay').innerHTML = Object.keys(dimLabels).map(key => {
+                const dim = dims[key];
+                return `
+                    <div class="dimension-item">
+                        <div class="dimension-label">${dimLabels[key]}</div>
+                        <div class="dimension-value">${dim.dominant} ${dim.percentage}%</div>
+                        <div class="dimension-bar">
+                            <div class="dimension-fill" style="width: ${dim.percentage}%;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
 
-  // Draw axes
-  ctx.strokeStyle = 'rgba(200, 169, 81, 0.2)';
-  for (let i = 0; i < n; i++) {
-    const [x, y] = pointAt(i, R);
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  }
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['逻辑', '创意', '执行', '协作', '学习', '抗压'],
+                    datasets: [{
+                        label: '能力值',
+                        data: [data.radar.logic, data.radar.creativity, data.radar.execution,
+                               data.radar.teamwork, data.radar.learning, data.radar.stress_resistance],
+                        backgroundColor: 'rgba(225, 151, 0, 0.12)',
+                        borderColor: '#FFBF01',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#E19700',
+                        pointBorderColor: '#F5E6D0',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        r: {
+                            min: 0, max: 100,
+                            ticks: {
+                                stepSize: 20,
+                                color: 'rgba(245, 230, 208, 0.5)',
+                                backdropColor: 'transparent',
+                                font: { size: 11 }
+                            },
+                            grid: { color: 'rgba(255, 191, 1, 0.1)' },
+                            pointLabels: {
+                                color: '#F5E6D0',
+                                font: { size: 13, weight: '500' }
+                            },
+                            angleLines: { color: 'rgba(255, 191, 1, 0.1)' }
+                        }
+                    }
+                }
+            });
 
-  // Draw data polygon - filled
-  ctx.beginPath();
-  for (let i = 0; i < n; i++) {
-    const [x, y] = pointAt(i, R * values[i] / 100);
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  }
-  ctx.closePath();
-  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
-  grad.addColorStop(0, 'rgba(255, 191, 1, 0.25)');
-  grad.addColorStop(1, 'rgba(225, 151, 0, 0.08)');
-  ctx.fillStyle = grad;
-  ctx.fill();
+            document.getElementById('strengthsList').innerHTML = data.strengths.map(s =>
+                `<span class="trait-tag strength-tag">${s}</span>`).join('');
+            document.getElementById('weaknessesList').innerHTML = data.weaknesses.map(w =>
+                `<span class="trait-tag weakness-tag">${w}</span>`).join('');
 
-  // Draw data polygon - stroke
-  ctx.strokeStyle = 'rgba(255, 191, 1, 0.8)';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  for (let i = 0; i < n; i++) {
-    const [x, y] = pointAt(i, R * values[i] / 100);
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  }
-  ctx.closePath();
-  ctx.stroke();
+            document.getElementById('collabGrid').innerHTML = `
+                <div class="collab-item">
+                    <div class="collab-label">决策模式</div>
+                    <div class="collab-value">${data.collaboration_style.type}</div>
+                </div>
+                <div class="collab-item">
+                    <div class="collab-label">风格描述</div>
+                    <div class="collab-value">${data.collaboration_style.description}</div>
+                </div>
+            `;
 
-  // Draw data points
-  for (let i = 0; i < n; i++) {
-    const [x, y] = pointAt(i, R * values[i] / 100);
-    ctx.beginPath();
-    ctx.arc(x, y, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#FFBF01';
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(x, y, 6, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255, 191, 1, 0.4)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  }
+            if (data.team_role) {
+                document.getElementById('teamRoleSection').style.display = '';
+                document.getElementById('teamRoleCard').innerHTML = `
+                    <div class="role-name">${data.team_role.name}</div>
+                    <div class="role-desc">${data.team_role.description}</div>
+                `;
+            }
 
-  // Draw labels
-  ctx.font = '13px "Segoe UI", sans-serif';
-  ctx.fillStyle = '#B8A88A';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  for (let i = 0; i < n; i++) {
-    const [x, y] = pointAt(i, R + 28);
-    ctx.fillText(dims[i], x, y);
-    // value
-    const [vx, vy] = pointAt(i, R * values[i] / 100 + 16);
-    ctx.font = '11px "Segoe UI", sans-serif';
-    ctx.fillStyle = '#E8C96D';
-    ctx.fillText(values[i], vx, vy);
-    ctx.font = '13px "Segoe UI", sans-serif';
-    ctx.fillStyle = '#B8A88A';
-  }
-})();
-</script>
+            if (data.suitable_work && data.suitable_work.length) {
+                document.getElementById('suitableWorkSection').style.display = '';
+                document.getElementById('suitableWorkList').innerHTML = data.suitable_work.map(w =>
+                    `<span class="detail-tag">${w}</span>`).join('');
+            }
+
+            if (data.best_scenarios && data.best_scenarios.length) {
+                document.getElementById('bestScenariosSection').style.display = '';
+                document.getElementById('bestScenariosList').innerHTML = data.best_scenarios.map(s =>
+                    `<div class="detail-item">${s}</div>`).join('');
+            }
+
+            if (data.growth_tips && data.growth_tips.length) {
+                document.getElementById('growthTipsSection').style.display = '';
+                document.getElementById('growthTipsList').innerHTML = data.growth_tips.map(t =>
+                    `<div class="detail-item">${t}</div>`).join('');
+            }
+        }
+
+        loadPanel();
+    </script>
 </body>
 </html>

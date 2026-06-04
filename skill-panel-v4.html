@@ -621,9 +621,17 @@
         function loadPanel() {
             try {
                 const urlParams = new URLSearchParams(window.location.search);
-                const botId = urlParams.get('botId') || 'banner-17';
-                const answers = urlParams.get('answers') || 'BABABBBABABABBBABABABBA';
-                const botName = urlParams.get('botName') || '班纳十七世';
+                const botId = urlParams.get('botId');
+                const answers = urlParams.get('answers');
+                const botName = urlParams.get('botName');
+
+                if (!botId || !answers || !botName) {
+                    throw new Error('缺少必需的URL参数：botId、answers、botName');
+                }
+
+                if (answers.length !== 23 || !/^[AB]+$/.test(answers)) {
+                    throw new Error('answers参数格式错误，必须是23位AB序列');
+                }
 
                 const data = generatePanelData(answers, botId, botName);
                 renderPanel(data);
